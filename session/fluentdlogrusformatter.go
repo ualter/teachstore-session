@@ -52,7 +52,6 @@ func NewFormatterFluentD(opts ...Format) *Formatter {
 }
 
 // Format the log entry. Implements logrus.Formatter.
-/*
 func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	data := make(logrus.Fields, len(entry.Data)+3)
 	for k, v := range entry.Data {
@@ -112,7 +111,7 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	return b.Bytes(), nil
 }
-*/
+
 func prefixFieldClashes(data logrus.Fields, reportCaller bool) {
 	if t, ok := data["time"]; ok {
 		data["fields.time"] = t

@@ -2,7 +2,6 @@ package tracing
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	//"github.com/uber/jaeger-client-go/config"
@@ -30,18 +29,12 @@ func Middleware(next http.Handler) http.Handler {
 // Trace the request of a Service
 func TraceRequest(function string, rw http.ResponseWriter, r *http.Request) {
 
-	traceLogger := logrus.WithField("httpRequest", &HTTPRequest{
+	traceLogger := logrus.WithField("httpRequest", &MyHTTPRequest{
 		Request: r,
 		Status:  http.StatusOK,
 		//ResponseSize: 31337,
 		//Latency:      123 * time.Millisecond,
 	})
-
-	/*traceLogger := logrus.WithFields(logrus.Fields{
-		"microservice": viper.Get("name"),
-		"operation":    function,
-	})
-	traceLogger.Infof("Called %s", function)*/
 
 	traced := serializeFromTheWire(function, rw, r, traceLogger)
 	if !traced {
@@ -49,7 +42,8 @@ func TraceRequest(function string, rw http.ResponseWriter, r *http.Request) {
 		serializeToTheWire(function, rw, r, traceLogger)
 	}
 
-	fmt.Printf("%+v\n\n", rw.Header())
+	//fmt.Printf("%+v\n\n", rw.Header())
+	traceLogger.Infof("HELLOOOOO....")
 }
 
 func serializeToTheWire(function string, rw http.ResponseWriter, r *http.Request, traceLogger *logrus.Entry) {
@@ -85,5 +79,5 @@ func injectToHeader(rw http.ResponseWriter, span opentracing.Span, traceLogger *
 		opentracing.HTTPHeaders,
 		opentracing.HTTPHeadersCarrier(rw.Header()))
 
-	traceLogger.Debugf("Tracing Request %+v", span)
+	//traceLogger.Debugf("Tracing Request %+v", span)
 }

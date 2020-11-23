@@ -35,7 +35,9 @@ var (
 func init() {
 	// Logging
 	//logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetFormatter(tracing.NewFormatterFluentD())
+	//logrus.SetFormatter(tracing.NewFormatterFluentD())
+	logrus.SetFormatter(tracing.NewMyFormatter())
+
 	//logrus.SetReportCaller(true) #Add the Caller (file.go:line)
 	logrus.SetOutput(outputLog)
 	logrus.SetLevel(logrus.DebugLevel)
@@ -43,7 +45,7 @@ func init() {
 
 func main() {
 	// For Debug
-	// os.Setenv("IP_DOCKER_HOST", "192.168.1.42")
+	os.Setenv("IP_DOCKER_HOST", "192.168.1.42")
 
 	// External Configuration
 	loadExternalConfiguration()
