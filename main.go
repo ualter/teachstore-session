@@ -14,10 +14,15 @@ import (
 
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/opentracing/opentracing-go"
 
+	zipkinot "github.com/openzipkin-contrib/zipkin-go-opentracing"
+	zipkingo "github.com/openzipkin/zipkin-go"
+	zipkinhttp "github.com/openzipkin/zipkin-go/reporter/http"
 	"github.com/uber/jaeger-client-go"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
 	jaegerlog "github.com/uber/jaeger-client-go/log"
+	"github.com/uber/jaeger-client-go/zipkin"
 	"github.com/uber/jaeger-lib/metrics"
 
 	logrus "github.com/sirupsen/logrus"
@@ -31,7 +36,10 @@ var (
 	outputLog      = os.Stdout
 	bindAddress    string
 	closerJaeger   io.Closer
-	jaegerEndpoint = "192.168.1.42"
+	jaegerEndpoint = "localhost"
+	zipkinEndpoint = "localhost"
+	tracingEnable  = ""
+	myIP           = "localhost"
 )
 
 func init() {
@@ -43,10 +51,19 @@ func init() {
 }
 
 func main() {
+	var err error
+	myIP, err = utils.MyIP()
+	if err != nil {
+		panic(err.Error())
+	}
 	// External Configuration
 	externalConfiguration()
 	// Distributed Tracing
-	startOpenTracingAPI()
+	if tracingEnable == "jaeger" {
+		startOpenTracingWithJaeger()
+	} else if tracingEnable == "zipkin" {
+		startOpenTracingWithZipkin()
+	}
 
 	r := mux.NewRouter()
 	// Service
@@ -92,7 +109,28 @@ func main() {
 	s.Shutdown(ctx)
 }
 
-func startOpenTracingAPI() {
+func startOpenTracingWithZipkin() {
+	reporter := zipkinhttp.NewReporter(zipkinEndpoint)
+	//defer reporter.Close()
+
+	endpoint, err := zipkingo.NewEndpoint(viper.GetString("name"), myIP+":"+bindAddress)
+	if err != nil {
+		log.Fatalf("unable to create local endpoint: %+v\n", err)
+	}
+
+	nativeTracer, err := zipkingo.NewTracer(reporter, zipkingo.WithLocalEndpoint(endpoint))
+	if err != nil {
+		log.Fatalf("unable to create tracer: %+v\n", err)
+	}
+
+	// use zipkin-go-opentracing to wrap our tracer
+	tracer := zipkinot.Wrap(nativeTracer)
+
+	// optionally set as Global OpenTracing tracer instance
+	opentracing.SetGlobalTracer(tracer)
+}
+
+func startOpenTracingWithJaeger() {
 	cfg := jaegercfg.Configuration{
 		Sampler: &jaegercfg.SamplerConfig{
 			Type:  jaeger.SamplerTypeConst,
@@ -107,17 +145,35 @@ func startOpenTracingAPI() {
 	jLogger := jaegerlog.StdLogger
 	jMetricsFactory := metrics.NullFactory
 
-	closerJaeger, err := cfg.InitGlobalTracer(
-		viper.GetString("name"),
-		jaegercfg.Logger(jLogger),
-		jaegercfg.Metrics(jMetricsFactory),
-	)
-	if err != nil {
-		log.Fatalf("%s", err.Error())
-		panic(err.Error())
+	// Zipkin HTTP B3 compatible header propagation
+	zipkinHttpB3CompitablePropagation := true
+	if zipkinHttpB3CompitablePropagation {
+		zipkinPropagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
+		closerJaeger, err := cfg.InitGlobalTracer(
+			viper.GetString("name"),
+			jaegercfg.Logger(jLogger),
+			jaegercfg.Metrics(jMetricsFactory),
+			jaegercfg.Injector(opentracing.HTTPHeaders, zipkinPropagator),
+			jaegercfg.Extractor(opentracing.HTTPHeaders, zipkinPropagator),
+			jaegercfg.ZipkinSharedRPCSpan(true),
+		)
+		if err != nil {
+			log.Fatalf("%s", err.Error())
+			panic(err.Error())
+		}
+		_ = closerJaeger
+	} else {
+		closerJaeger, err := cfg.InitGlobalTracer(
+			viper.GetString("name"),
+			jaegercfg.Logger(jLogger),
+			jaegercfg.Metrics(jMetricsFactory),
+		)
+		if err != nil {
+			log.Fatalf("%s", err.Error())
+			panic(err.Error())
+		}
+		_ = closerJaeger
 	}
-	_ = closerJaeger
-	//defer closerJaeger.Close()
 }
 
 func addSessionServiceHandlers(r *mux.Router) {
@@ -145,6 +201,10 @@ func externalConfiguration() {
 	viper.SetDefault("port", "9999")
 	bindAddress = viper.GetString("port")
 	jaegerEndpoint = utils.ReplaceEnvInConfig(viper.Get("opentracing.jaeger.http-sender.url").(string))
+	zipkinEndpoint = utils.ReplaceEnvInConfig(viper.Get("opentracing.zipkin.http.url").(string))
+	tracingEnable = viper.Get("opentracing.enable").(string)
 
-	logrus.Debugf("Jaeger Endpoint configured to: %s", utils.ReplaceEnvInConfig(viper.Get("opentracing.jaeger.http-sender.url").(string)))
+	logrus.Debugf("Jaeger Endpoint: %s", jaegerEndpoint)
+	logrus.Debugf("Zipkin Endpoint: %s", zipkinEndpoint)
+	logrus.Debugf("Tracing enable for: %s", tracingEnable)
 }

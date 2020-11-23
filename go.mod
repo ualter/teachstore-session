@@ -8,6 +8,8 @@ require (
 	github.com/hashicorp/go-hclog v0.15.0
 	github.com/nicholasjackson/env v0.6.0
 	github.com/opentracing/opentracing-go v1.2.0
+	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5
+	github.com/openzipkin/zipkin-go v0.2.5
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/viper v1.7.1
