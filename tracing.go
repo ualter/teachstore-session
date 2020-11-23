@@ -51,6 +51,7 @@ func StartOpenTracingWithJaeger() {
 
 	jLogger := jaegerlog.StdLogger
 	jMetricsFactory := metrics.NullFactory
+	_ = jLogger
 
 	// Zipkin HTTP B3 compatible header propagation (enable or disable it here)
 	zipkinHTTPB3CompitablePropagation := true
@@ -58,7 +59,7 @@ func StartOpenTracingWithJaeger() {
 		zipkinPropagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
 		closerJaeger, err := cfg.InitGlobalTracer(
 			viper.GetString("name"),
-			jaegercfg.Logger(jLogger),
+			//jaegercfg.Logger(jLogger),
 			jaegercfg.Metrics(jMetricsFactory),
 			jaegercfg.Injector(opentracing.HTTPHeaders, zipkinPropagator),
 			jaegercfg.Extractor(opentracing.HTTPHeaders, zipkinPropagator),
@@ -72,7 +73,7 @@ func StartOpenTracingWithJaeger() {
 	} else {
 		closerJaeger, err := cfg.InitGlobalTracer(
 			viper.GetString("name"),
-			jaegercfg.Logger(jLogger),
+			//jaegercfg.Logger(jLogger),
 			jaegercfg.Metrics(jMetricsFactory),
 		)
 		if err != nil {

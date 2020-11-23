@@ -35,7 +35,8 @@ var (
 func init() {
 	// Logging
 	//logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetReportCaller(true)
+	logrus.SetFormatter(tracing.NewFormatterFluentD())
+	//logrus.SetReportCaller(true) #Add the Caller (file.go:line)
 	logrus.SetOutput(outputLog)
 	logrus.SetLevel(logrus.DebugLevel)
 }
@@ -60,16 +61,15 @@ func main() {
 	// Tracing
 	r.Use(tracing.Middleware)
 
-	logServer := log.New(outputLog, "", 0)
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
 
 	s := http.Server{
 		Addr:         (":" + bindAddress),
-		Handler:      ch(r),             // set the default handler
-		ErrorLog:     logServer,         // set the logger for the server
-		ReadTimeout:  10 * time.Second,  // max time to read request from the client
-		WriteTimeout: 30 * time.Second,  // max time to write response to the client
-		IdleTimeout:  120 * time.Second, // max time for connections using TCP Keep-Alive
+		Handler:      ch(r),                     // set the default handler
+		ErrorLog:     log.New(outputLog, "", 0), // set the logger for the server
+		ReadTimeout:  10 * time.Second,          // max time to read request from the client
+		WriteTimeout: 30 * time.Second,          // max time to write response to the client
+		IdleTimeout:  120 * time.Second,         // max time for connections using TCP Keep-Alive
 	}
 
 	go func() {
@@ -120,7 +120,7 @@ func loadExternalConfiguration() {
 	viper.SetConfigName(environment)
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./config/")
-	err := viper.ReadInConfig()
+	err = viper.ReadInConfig()
 	if err != nil {
 		logrus.Errorf("Error %s", err.Error())
 		panic(err.Error())
