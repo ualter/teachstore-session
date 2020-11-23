@@ -41,14 +41,9 @@ func init() {
 }
 
 func main() {
+	// For Debug
+	// os.Setenv("IP_DOCKER_HOST", "192.168.1.42")
 
-	os.Setenv("IP_DOCKER_HOST", "192.168.1.42")
-
-	var err error
-	myIP, err = utils.MyIP()
-	if err != nil {
-		panic(err.Error())
-	}
 	// External Configuration
 	loadExternalConfiguration()
 
@@ -111,6 +106,12 @@ func addSessionServiceHandlers(r *mux.Router) {
 }
 
 func loadExternalConfiguration() {
+	var err error
+	myIP, err = utils.MyIP()
+	if err != nil {
+		panic(err.Error())
+	}
+
 	environment := os.Getenv("ENVIRONMENT")
 	if environment == "" {
 		environment = "develop"
