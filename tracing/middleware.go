@@ -30,6 +30,7 @@ func Middleware(next http.Handler) http.Handler {
 func TraceRequest(function string, rw http.ResponseWriter, r *http.Request) {
 	traced := serializeFromTheWire(function, rw, r)
 	if !traced {
+		// Create a Parent Span (started from here)
 		serializeToTheWire(function, rw, r)
 	}
 }
@@ -38,16 +39,11 @@ func serializeToTheWire(function string, rw http.ResponseWriter, r *http.Request
 	span, ctx := opentracing.StartSpanFromContext(r.Context(), function)
 	defer span.Finish()
 	_ = ctx
-	opentracing.GlobalTracer().Inject(
-		span.Context(),
-		opentracing.HTTPHeaders,
-		opentracing.HTTPHeadersCarrier(rw.Header()))
-	log.Debugf("Starting Tracing Request %+v", span)
+	injectToHeader(rw, span)
 }
 
 func serializeFromTheWire(function string, rw http.ResponseWriter, r *http.Request) bool {
 	var serverSpan opentracing.Span
-
 	wireContext, err := opentracing.GlobalTracer().Extract(
 		opentracing.HTTPHeaders,
 		opentracing.HTTPHeadersCarrier(rw.Header()))
@@ -55,13 +51,22 @@ func serializeFromTheWire(function string, rw http.ResponseWriter, r *http.Reque
 		log.Debugf(err.Error())
 		return false
 	}
-
 	serverSpan = opentracing.StartSpan(function, opentracingext.RPCServerOption(wireContext))
 	defer serverSpan.Finish()
 
-	log.Debugf("Received Tracing Request %+v", serverSpan)
-
 	ctx := opentracing.ContextWithSpan(context.Background(), serverSpan)
 	_ = ctx
+
+	injectToHeader(rw, serverSpan)
+
 	return true
+}
+
+func injectToHeader(rw http.ResponseWriter, span opentracing.Span) {
+	opentracing.GlobalTracer().Inject(
+		span.Context(),
+		opentracing.HTTPHeaders,
+		opentracing.HTTPHeadersCarrier(rw.Header()))
+
+	log.Debugf("Tracing Request %+v", span)
 }

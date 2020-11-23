@@ -41,6 +41,9 @@ func init() {
 }
 
 func main() {
+
+	os.Setenv("IP_DOCKER_HOST", "192.168.1.42")
+
 	var err error
 	myIP, err = utils.MyIP()
 	if err != nil {

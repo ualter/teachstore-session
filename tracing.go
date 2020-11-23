@@ -30,7 +30,8 @@ func StartOpenTracingWithZipkin() {
 	}
 
 	// use zipkin-go-opentracing to wrap our tracer
-	tracer := zipkinot.Wrap(nativeTracer)
+	option := zipkinot.WithB3InjectOption(zipkinot.B3InjectBoth)
+	tracer := zipkinot.Wrap(nativeTracer, option)
 
 	// optionally set as Global OpenTracing tracer instance
 	opentracing.SetGlobalTracer(tracer)
