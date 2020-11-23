@@ -1,2 +1,6 @@
 name: teachstore-session
 port: 9393
+opentracing:
+  jaeger: 
+    http-sender:
+      url: http://${IP_DOCKER_HOST}:14268/api/traces

@@ -24,12 +24,14 @@ import (
 	viper "github.com/spf13/viper"
 	"github.com/ualter/teachstore/session/service"
 	"github.com/ualter/teachstore/tracing"
+	"github.com/ualter/teachstore/utils"
 )
 
 var (
-	outputLog    = os.Stdout
-	bindAddress  string
-	closerJaeger io.Closer
+	outputLog      = os.Stdout
+	bindAddress    string
+	closerJaeger   io.Closer
+	jaegerEndpoint = "192.168.1.42"
 )
 
 func init() {
@@ -98,7 +100,7 @@ func startOpenTracingAPI() {
 		},
 		Reporter: &jaegercfg.ReporterConfig{
 			LogSpans:          true,
-			CollectorEndpoint: "http://192.168.1.45:14268/api/traces",
+			CollectorEndpoint: jaegerEndpoint,
 		},
 	}
 
@@ -130,6 +132,7 @@ func externalConfiguration() {
 	if environment == "" {
 		environment = "develop"
 	}
+
 	viper.SetConfigName(environment)
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./config/")
@@ -138,6 +141,10 @@ func externalConfiguration() {
 		logrus.Errorf("Error %s", err.Error())
 		panic(err.Error())
 	}
+
 	viper.SetDefault("port", "9999")
 	bindAddress = viper.GetString("port")
+	jaegerEndpoint = utils.ReplaceEnvInConfig(viper.Get("opentracing.jaeger.http-sender.url").(string))
+
+	logrus.Debugf("Jaeger Endpoint configured to: %s", utils.ReplaceEnvInConfig(viper.Get("opentracing.jaeger.http-sender.url").(string)))
 }
