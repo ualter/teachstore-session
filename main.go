@@ -46,8 +46,8 @@ func init() {
 }
 
 func main() {
-	// For Debug
-	os.Setenv("IP_DOCKER_HOST", "192.168.1.42")
+	// Just For Debug Time
+	//os.Setenv("IP_DOCKER_HOST", "192.168.1.42")
 
 	// External Configuration
 	loadExternalConfiguration()

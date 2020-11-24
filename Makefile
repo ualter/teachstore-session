@@ -16,11 +16,13 @@ list-dep: ## List available minor and patch upgrades for all direct and indirect
 upgrade: ## Upgrade to the lastest or minor patch release	
 	go get -u ./...
 
-docker-image: ## Build the docker image of this microservice with name: ualter/teachstore-session
+docker-build: ## Build the docker image of this microservice with name: ualter/teachstore-session
 	docker build . -t ualter/teachstore-session
 
 docker-run: ## Run a Container with this microservice
-	docker run -d -p 8383:9393 --name teachstore-session ualter/teachstore-session
+	docker run -d -p 8383:9393 \
+	       -e IP_DOCKER_HOST=${IP_DOCKER_HOST} \
+	       --name teachstore-session ualter/teachstore-session
 
 run: ## Run main
 	go run .
