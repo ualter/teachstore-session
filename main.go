@@ -17,9 +17,9 @@ import (
 
 	logrus "github.com/sirupsen/logrus"
 	viper "github.com/spf13/viper"
-	"github.com/ualter/teachstore/session/service"
-	"github.com/ualter/teachstore/tracing"
-	"github.com/ualter/teachstore/utils"
+	"github.com/ualter/teachstore-session/session/service"
+	"github.com/ualter/teachstore-session/tracing"
+	"github.com/ualter/teachstore-session/utils"
 )
 
 var (

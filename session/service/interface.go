@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ualter/teachstore/session/model"
+	"github.com/ualter/teachstore-session/session/model"
 )
 
 type Service struct {

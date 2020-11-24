@@ -7,8 +7,17 @@ help:  ## Display this help
 build: ## Build the project
 	go build -o teachstore-session
 
-test: ## Test Service using Mock
+test: ## Test Service Ah! Perfectousing Mock
 	go test
+
+list-dep: ## List available minor and patch upgrades for all direct and indirect dependencies
+	go list -u -m all	
+
+upgrade: ## Upgrade to the lastest or minor patch release	
+	go get -u ./...
+
+docker-image: ## Build the docker image of this microservice with name: ualter/teachstore-session
+	docker build . -t ualter/teachstore-session
 
 run: ## Run main
 	go run .

@@ -8,7 +8,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/ualter/teachstore/session/model"
+	"github.com/ualter/teachstore-session/session/model"
 )
 
 type mockService struct {

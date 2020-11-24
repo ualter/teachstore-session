@@ -3,8 +3,8 @@ package service
 import (
 	"net/http"
 
-	tracing "github.com/ualter/teachstore/tracing"
-	"github.com/ualter/teachstore/utils"
+	tracing "github.com/ualter/teachstore-session/tracing"
+	"github.com/ualter/teachstore-session/utils"
 
 	log "github.com/sirupsen/logrus"
 )
