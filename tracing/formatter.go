@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -37,7 +38,7 @@ func MyDefaultFormat(f *MyFormatter) error {
 		"info":    "200",
 	}
 	f.TimestampFormat = func(fields logrus.Fields, now time.Time) error {
-		fields["@timestamp"] = now
+		fields["@timestamp"] = now.Format("2006-01-02T15:04:05.000-07:00")
 		return nil
 	}
 
@@ -68,12 +69,31 @@ func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		case error:
 			data[k] = v.Error()
 		default:
-			fmt.Printf("Type:%s", v)
-			data[k] = v
+			// Special treatment for MyHTTPRequest (otherwise it will be Marshall as a JSON Object inside the main root JSON)
+			if reflect.TypeOf(v) == reflect.TypeOf(&MyHTTPRequest{}) {
+				httpRequest := v.(*MyHTTPRequest)
+
+				u := *httpRequest.Request.URL
+				u.Fragment = ""
+
+				data["requestMethod"] = httpRequest.Request.Method
+				data["requestUrl"] = fixUTF8(u.String())
+				data["status"] = httpRequest.Status
+				data["userAgent"] = httpRequest.Request.UserAgent()
+				data["serverIP"] = httpRequest.LocalIP
+				data["remoteIP"] = httpRequest.RemoteIP
+				data["referer"] = httpRequest.Request.Referer()
+				if httpRequest.RequestSize > 0 {
+					data["requestSize"] = fmt.Sprintf("%d", httpRequest.RequestSize)
+				}
+				if httpRequest.ResponseSize > 0 {
+					data["responseSize"] = fmt.Sprintf("%d", httpRequest.ResponseSize)
+				}
+			} else {
+				data[k] = v
+			}
 		}
 	}
-
-	//fmt.Printf("***** DATA: %+v\n", entry.Data)
 
 	if !f.DisableTimestamp && f.TimestampFormat != nil {
 		if err := f.TimestampFormat(data, entry.Time); err != nil {
@@ -183,9 +203,6 @@ func (r MyHTTPRequest) MarshalJSON() ([]byte, error) {
 	if r.ResponseSize > 0 {
 		e.ResponseSize = fmt.Sprintf("%d", r.ResponseSize)
 	}
-	/*if r.Latency != 0 {
-		e.Latency = ptypes.DurationProto(r.Latency)
-	}*/
 
 	return json.Marshal(e)
 }
