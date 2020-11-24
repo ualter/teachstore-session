@@ -13,6 +13,7 @@ import (
 	logrus "github.com/sirupsen/logrus"
 )
 
+// MyFormatter ...
 type MyFormatter struct {
 	// DisableTimestamp allows disabling automatic timestamps in output
 	DisableTimestamp bool
@@ -27,6 +28,7 @@ type MyFormatter struct {
 	PrettyPrint bool
 }
 
+// MyDefaultFormat ...
 func MyDefaultFormat(f *MyFormatter) error {
 	f.SeverityMap = map[string]string{
 		"panic":   "600",
@@ -45,8 +47,10 @@ func MyDefaultFormat(f *MyFormatter) error {
 	return nil
 }
 
+// MyFormat ...
 type MyFormat func(*MyFormatter) error
 
+// NewMyFormatter ...
 func NewMyFormatter(opts ...MyFormat) *MyFormatter {
 	f := MyFormatter{}
 	if len(opts) == 0 {
@@ -60,7 +64,7 @@ func NewMyFormatter(opts ...MyFormat) *MyFormatter {
 	return &f
 }
 
-// Format
+// Format ...
 func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	data := make(logrus.Fields, len(entry.Data)+3)
 
@@ -142,6 +146,7 @@ func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+// MyHTTPRequest struct
 type MyHTTPRequest struct {
 	// Request is the http.Request passed to the handler.
 	Request *http.Request
@@ -180,6 +185,7 @@ type MyHTTPRequest struct {
 	CacheValidatedWithOriginServer bool
 }
 
+// MarshalJSON ...
 func (r MyHTTPRequest) MarshalJSON() ([]byte, error) {
 	if r.Request == nil {
 		return nil, nil
@@ -223,8 +229,6 @@ type logEntry struct {
 	CacheFillBytes                 string `json:"cacheFillBytes,omitempty"`
 	Protocol                       string `json:"protocol,omitempty"`
 }
-
-//Latency                        *durpb.Duration `json:"latency,omitempty"`
 
 // fixUTF8 is a helper that fixes an invalid UTF-8 string by replacing
 // invalid UTF-8 runes with the Unicode replacement character (U+FFFD).
