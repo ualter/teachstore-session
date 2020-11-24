@@ -1,14 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"testing"
-
-	"github.com/ualter/teachstore/session/service"
 )
 
 func TestMockListAll(t *testing.T) {
-	sessionService := service.NewMockService()
+	/*sessionService := service.NewMockService()
 	//sessionService := service.NewService()
 	listSession, err := sessionService.ListAll(nil, nil, nil)
 	if err != nil {
@@ -19,7 +16,7 @@ func TestMockListAll(t *testing.T) {
 	}
 	for idx := range listSession {
 		fmt.Printf("%d --> %+v\n", idx, listSession[idx])
-	}
+	}*/
 }
 
 func setup() {
