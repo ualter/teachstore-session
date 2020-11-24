@@ -74,7 +74,6 @@ func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	//fmt.Printf("***** DATA: %+v\n", entry.Data)
 
 	if !f.DisableTimestamp && f.TimestampFormat != nil {
-		// https://cloud.google.com/logging/docs/agent/configuration#timestamp-processing
 		if err := f.TimestampFormat(data, entry.Time); err != nil {
 			return nil, err
 		}
