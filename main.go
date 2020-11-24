@@ -35,8 +35,10 @@ var (
 func init() {
 	// Logging
 	//logrus.SetFormatter(&logrus.JSONFormatter{})
-	//logrus.SetFormatter(tracing.NewFormatterFluentD())
-	logrus.SetFormatter(tracing.NewMyFormatter())
+	logrus.SetFormatter(tracing.NewMyFormatter(func(f *tracing.MyFormatter) error {
+		f.PrettyPrint = false
+		return nil
+	}))
 
 	//logrus.SetReportCaller(true) #Add the Caller (file.go:line)
 	logrus.SetOutput(outputLog)
