@@ -13,6 +13,7 @@ type Service struct {
 
 type ServiceAPI interface {
 	ListAll(rw http.ResponseWriter, r *http.Request)
+	Ping(rw http.ResponseWriter, r *http.Request)
 }
 
 func NewService() ServiceAPI {

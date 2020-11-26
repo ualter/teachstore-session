@@ -106,7 +106,8 @@ func addSessionServiceHandlers(r *mux.Router) {
 	sessionSvc := service.NewService()
 
 	getR := r.Methods(http.MethodGet).Subrouter()
-	getR.HandleFunc("/session", sessionSvc.ListAll)
+	getR.HandleFunc("/sessions", sessionSvc.ListAll)
+	getR.HandleFunc("/health", sessionSvc.Ping)
 }
 
 func loadExternalConfiguration() {
