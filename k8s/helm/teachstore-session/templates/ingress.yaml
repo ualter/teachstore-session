@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /{{ .Release.Name }}/$1
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /{{ .Release.Name }}/?(.*)
+        backend:
+          serviceName: {{ .Release.Name }}
+          servicePort: {{ .Values.service.port }}

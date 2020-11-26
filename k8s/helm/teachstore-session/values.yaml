@@ -1,0 +1,56 @@
+# Default values for teachstore-session.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+# General Values
+templateVersion: "{{ .Values.version }}"
+templateIpDockerVersion: "{{ .Values.ipDockerHost }}"
+version: "PleaseSetExternally"
+ipDockerHost: "PleaseSetExternally"
+
+# K8s Workload ConfigMap Values
+configMap:
+   fileNameApplicationYmlSpringBoot: config.yml
+
+
+# K8s Workload Deployment Values
+deployment:
+   replicaCount: 1
+   image:
+     name: "teachstore-session"
+     version: "PleaseSetExternally"
+     pullPolicy: "Always"
+     #pullPolicy: "Always"
+     #pullPolicy: "IfNotPresent"
+     # Overrides the image tag whose default is the chart appVersion.
+     tag: ""
+   health:
+     path: "/teachstore-session/actuator/health"
+     port: "9480"  
+     readinessInitialDelaySeconds: 60
+     readinessPeriodSeconds: 10
+     livenessInitialDelaySeconds: 60
+     livenessPeriodSeconds: 10
+     # StartUpProbe (30 * 5 = 150s) 
+     # Time for the application to start up (before Liveness and Rediness Probe start doing their jobs)
+     startUpProbeFailureThreshold: 30
+     startUpProbePeriodSeconds: 5
+   container:
+     # Environment Variables       
+     env:
+      - name: ENVIRONMENT
+        value: develop
+
+# K8s Workload Service Values
+service:
+   name: 9480-tcp
+   port: 80
+   targetPort: 9480
+   spec:
+     selector:
+       app: teachstore-session
+   
+
+######################################################################################################################
+

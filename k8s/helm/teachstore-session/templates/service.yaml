@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: {{ .Release.Name }}
+    service: {{ .Release.Name }}
+  name: {{ .Release.Name }}
+spec:
+  selector:
+    app: {{ .Values.service.spec.selector.app }}
+  ports:
+    - name: 9480-tcp
+      port: {{ .Values.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.service.targetPort }}

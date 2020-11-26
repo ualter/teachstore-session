@@ -121,7 +121,7 @@ func loadExternalConfiguration() {
 		environment = "develop"
 	}
 
-	viper.SetConfigName(environment)
+	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./config/")
 	err = viper.ReadInConfig()

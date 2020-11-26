@@ -1,0 +1,11 @@
+name: teachstore-session
+port: 9393
+opentracing:  #Only one at time enabled: Jaeger or Zipkin
+  enable: "jaeger"  #Valid: zipkin, jaeger
+  jaeger: 
+    http-sender:
+      url: http://${IP_DOCKER_HOST}:14268/api/traces
+  zipkin:
+    http:
+      url: http://${IP_DOCKER_HOST}:9411/api/v2/spans
+

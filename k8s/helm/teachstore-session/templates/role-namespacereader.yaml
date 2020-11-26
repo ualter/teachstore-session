@@ -1,0 +1,22 @@
+# Give read permissions for the ConfigMap(and others workloads) to the ServiceAcccount
+# In order that the Pod (with the Container Application installed ) can access/read de the ConfigMaps (get the key to decrypt the passwords)
+{{- if not (lookup "rbac.authorization.k8s.io/v1" "Role" "develop" "namespacereader") }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: namespacereader
+  namespace: develop
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - pods
+  - services
+  - endpoints
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+{{- end }}
