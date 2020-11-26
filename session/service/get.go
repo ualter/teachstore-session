@@ -35,7 +35,10 @@ func (s *Service) Ping(rw http.ResponseWriter, r *http.Request) {
 	log.Info("Ping")
 	rw.Header().Add("Content-Type", "application/json")
 
-	err := utils.ToJSON("OK", rw)
+	res := make(map[string]interface{})
+	res["result"] = "OK!"
+
+	err := utils.ToJSON(res, rw)
 	if err != nil {
 		log.Error(err.Error())
 	}
