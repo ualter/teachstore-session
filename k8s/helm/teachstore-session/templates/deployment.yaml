@@ -48,26 +48,26 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        {{- with .Values.deployment.health }}
-        readinessProbe:
-          httpGet:
-            path: {{ .path }}
-            port: {{ .port }}
-          initialDelaySeconds: {{ .readinessInitialDelaySeconds }}
-          periodSeconds: {{ .readinessPeriodSeconds }}
-        livenessProbe:
-          httpGet:
-            path: {{ .path }}
-            port: {{ .port }}
-          initialDelaySeconds: {{ .livenessInitialDelaySeconds }}
-          periodSeconds: {{ .livenessPeriodSeconds }}
-        startupProbe:
-          httpGet:
-            path: {{ .path }}
-            port: {{ .port }}
-          failureThreshold: {{ .startUpProbeFailureThreshold }}
-          periodSeconds: {{ .startUpProbePeriodSeconds }}
-        {{- end }}
+        #{{- with .Values.deployment.health }}
+        #readinessProbe:
+        #  httpGet:
+        #    path: {{ .path }}
+        #    port: {{ .port }}
+        #  initialDelaySeconds: {{ .readinessInitialDelaySeconds }}
+        #  periodSeconds: {{ .readinessPeriodSeconds }}
+        #livenessProbe:
+        #  httpGet:
+        #    path: {{ .path }}
+        #    port: {{ .port }}
+        #  initialDelaySeconds: {{ .livenessInitialDelaySeconds }}
+        #  periodSeconds: {{ .livenessPeriodSeconds }}
+        #startupProbe:
+        #  httpGet:
+        #    path: {{ .path }}
+        #    port: {{ .port }}
+        #  failureThreshold: {{ .startUpProbeFailureThreshold }}
+        #  periodSeconds: {{ .startUpProbePeriodSeconds }}
+        #{{- end }}
         #resources:
         #  requests:
         #    memory: "64Mi"

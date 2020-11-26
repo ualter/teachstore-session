@@ -1,5 +1,5 @@
 name: teachstore-session
-port: 9393
+port: 9480
 opentracing:  #Only one at time enabled: Jaeger or Zipkin
   enable: "jaeger"  #Valid: zipkin, jaeger
   jaeger: 

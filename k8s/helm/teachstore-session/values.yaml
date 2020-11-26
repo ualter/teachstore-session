@@ -20,13 +20,13 @@ deployment:
    image:
      name: "teachstore-session"
      version: "PleaseSetExternally"
-     pullPolicy: "Always"
+     pullPolicy: "IfNotPresent"
      #pullPolicy: "Always"
      #pullPolicy: "IfNotPresent"
      # Overrides the image tag whose default is the chart appVersion.
      tag: ""
    health:
-     path: "/teachstore-session/actuator/health"
+     path: "/teachstore-session/"
      port: "9480"  
      readinessInitialDelaySeconds: 60
      readinessPeriodSeconds: 10

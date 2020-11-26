@@ -3,7 +3,7 @@ SHELL:=/bin/bash
 .PHONY: help build test upgrade run
 
 help:  ## Display this help
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[0m\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[33m\n\nTargets:\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-18s\033[33m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 build: ## Build the project
 	go build -o teachstore-session
@@ -58,6 +58,9 @@ helm-dry: show-env ## Test Helm running in dry-run mode
       --set-file 'configValues=config/config.yaml' \
       k8s/helm/teachstore-session \
       --dry-run
+
+helm-build-install: docker-build kind-load helm-install ## Perform Docker Build, Docker Load at Kind K8s Cluster and then Helm Install
+	@echo -e "\033[0;33mComplete workflow performed: \033[0;94mDocker Build\033[0;33m --> \033[0;94mDocker Load to K8s Kind Cluster \033[0;33m--> \033[0;94mHelm Install Microservices\033[0;0m"
 
 helm-install: show-env ## Install the teachstore-session Helm chart (Deployment, Services, Ingress, ConfigMap, Role, RoleBinding, etc.)
 	helm install teachstore-session \

@@ -1,14 +1,26 @@
+#
+# Option 1 - https://regex101.com/r/xQFHkZ/1  Capturing group($1) and group($2)
+# Option 2 - https://regex101.com/r/XVkfPc/1  Capturing group($1) only
+# More:
+#   https://kubernetes.github.io/ingress-nginx/examples/rewrite/
+#   https://kubernetes.github.io/ingress-nginx/user-guide/ingress-path-matching/
+# Just in case:
+#   https://kubernetes.github.io/ingress-nginx/troubleshooting/
+#
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /{{ .Release.Name }}/$1
+    # Option 2
+    #nginx.ingress.kubernetes.io/rewrite-target: /{{ .Release.Name }}/$1
+    # Option 1
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
   - http:
       paths:
-      - path: /{{ .Release.Name }}/?(.*)
+      - path: /{{ .Release.Name }}(/|$)(.*)
         backend:
           serviceName: {{ .Release.Name }}
           servicePort: {{ .Values.service.port }}
