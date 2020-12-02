@@ -1,0 +1,305 @@
+swagger: '2.0'
+info:
+  description: REST API of the TeachStore Enrollment Microservice
+  version: 1.0.0
+  title: TeachStore Enrollment API
+  contact:
+    name: Ualter Azambuja Junior
+    url: 'http://ualterazambuja.com'
+    email: ualter.junior@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: 192.168.1.49
+basePath: /teachstore-enrollment
+tags:
+  - name: Enrollment
+    description: REST API for Enrollment
+paths:
+  /api/enrollments:
+    get:
+      tags:
+        - Enrollment
+      summary: List of available enrollments
+      operationId: listUsingGET
+      produces:
+        - application/json;charset=UTF-8
+      responses:
+        '200':
+          description: Request succeeded
+          schema:
+            type: array
+            items:
+              type: object
+        '400':
+          description: Bad Request
+        '401':
+          description: Not authorized
+        '403':
+          description: Access forbidden
+        '404':
+          description: Not found
+        '500':
+          description: Internal Server Error
+      deprecated: false
+    post:
+      tags:
+        - Enrollment
+      summary: Create an enrollment
+      operationId: createUsingPOST
+      consumes:
+        - application/json;charset=UTF-8
+      produces:
+        - application/json;charset=UTF-8
+      parameters:
+        - in: body
+          name: enroll
+          description: enroll
+          required: true
+          schema:
+            $ref: '#/definitions/Enrollment'
+      responses:
+        '201':
+          description: Resource created
+          schema:
+            $ref: '#/definitions/Enrollment'
+        '400':
+          description: Bad Request
+        '401':
+          description: Not authorized
+        '403':
+          description: Access forbidden
+        '404':
+          description: Not found
+        '500':
+          description: Internal Server Error
+      deprecated: false
+    put:
+      tags:
+        - Enrollment
+      summary: Update an enrollment
+      operationId: updateUsingPUT
+      consumes:
+        - application/json;charset=UTF-8
+      produces:
+        - application/json;charset=UTF-8
+      parameters:
+        - in: body
+          name: enroll
+          description: enroll
+          required: true
+          schema:
+            $ref: '#/definitions/Enrollment'
+      responses:
+        '201':
+          description: Created
+        '202':
+          description: Request accepted
+        '400':
+          description: Bad Request
+        '401':
+          description: Not authorized
+        '403':
+          description: Access forbidden
+        '404':
+          description: Not found
+        '500':
+          description: Internal Server Error
+      deprecated: false
+  /api/enrollments/cache/clean:
+    get:
+      tags:
+        - Enrollment
+      summary: Clean enrollments cache
+      operationId: cleanUsingGET
+      produces:
+        - application/json;charset=UTF-8
+      responses:
+        '200':
+          description: Request succeeded
+          schema:
+            type: array
+            items:
+              type: object
+        '202':
+          description: Accepted
+          schema:
+            type: array
+            items:
+              type: object
+        '400':
+          description: Bad Request
+        '401':
+          description: Not authorized
+        '403':
+          description: Access forbidden
+        '404':
+          description: Not found
+        '500':
+          description: Internal Server Error
+      deprecated: false
+  '/api/enrollments/course/{id}':
+    get:
+      tags:
+        - Enrollment
+      summary: Find Enrollments of a Course
+      operationId: findByCourseUsingGET
+      produces:
+        - application/json;charset=UTF-8
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Request succeeded
+          schema:
+            type: array
+            items:
+              type: object
+        '400':
+          description: Bad Request
+        '401':
+          description: Not authorized
+        '403':
+          description: Access forbidden
+        '404':
+          description: Not found
+        '500':
+          description: Internal Server Error
+      deprecated: false
+  '/api/enrollments/{id}':
+    get:
+      tags:
+        - Enrollment
+      summary: Find a specific Enrollment
+      operationId: findByIdUsingGET
+      produces:
+        - application/json;charset=UTF-8
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Request succeeded
+          schema:
+            $ref: '#/definitions/Enrollment'
+        '400':
+          description: Bad Request
+        '401':
+          description: Not authorized
+        '403':
+          description: Access forbidden
+        '404':
+          description: Not found
+        '500':
+          description: Internal Server Error
+      deprecated: false
+    delete:
+      tags:
+        - Enrollment
+      summary: Delete a specific Enrollment
+      operationId: removeByIdUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Request succeeded
+          schema:
+            $ref: '#/definitions/Enrollment'
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Not authorized
+        '403':
+          description: Access forbidden
+        '404':
+          description: Not found
+        '500':
+          description: Internal Server Error
+      deprecated: false
+definitions:
+  CourseView:
+    type: object
+    properties:
+      difficultyLevel:
+        type: integer
+        format: int32
+      endDate:
+        type: string
+        example: yyyy-MM-dd
+      enrollments:
+        type: array
+        items:
+          $ref: '#/definitions/EnrollmentView'
+      id:
+        type: integer
+        format: int64
+      seats:
+        type: integer
+        format: int32
+      startDate:
+        type: string
+        example: yyyy-MM-dd
+      title:
+        type: string
+    title: CourseView
+    description: All details about the Airplane (DTO)
+  Enrollment:
+    type: object
+    properties:
+      course:
+        $ref: '#/definitions/CourseView'
+      id:
+        type: integer
+        format: int64
+      registerDate:
+        type: string
+        example: yyyy-MM-dd
+      student:
+        $ref: '#/definitions/StudentView'
+    title: Enrollment
+    description: 'All details about the Enroll. '
+  EnrollmentView:
+    type: object
+    properties:
+      course:
+        $ref: '#/definitions/CourseView'
+      id:
+        type: integer
+        format: int64
+      registerDate:
+        type: string
+        example: yyyy-MM-dd
+      student:
+        $ref: '#/definitions/StudentView'
+    title: EnrollmentView
+  StudentView:
+    type: object
+    properties:
+      birthDate:
+        type: string
+        example: yyyy-MM-dd
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+    title: StudentView
+    description: All details about the Airplane (DTO)

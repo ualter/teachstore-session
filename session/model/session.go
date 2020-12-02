@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	api_models "github.com/ualter/teachstore-session/gen/models"
+)
 
 // Session defines the structure for an API of Session Class
 // swagger:model
@@ -23,7 +27,8 @@ type Session struct {
 	Date time.Time `json:"date"`
 
 	// Enrollments
-	Enrollments []*EnrollmentView `json:"enrollments"`
+
+	Enrollments []*api_models.EnrollmentView `json:"enrollments"`
 	//Addresses []Address `json:"addresses,omitempty"`
 
 	// The student attends to this session

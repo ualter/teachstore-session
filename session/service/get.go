@@ -1,15 +1,23 @@
 package service
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gorilla/mux"
 
 	tracing "github.com/ualter/teachstore-session/tracing"
 	"github.com/ualter/teachstore-session/utils"
 
 	log "github.com/sirupsen/logrus"
+
+	//api_models "github.com/ualter/teachstore-session/gen/models"
+
+	api_client "github.com/ualter/teachstore-session/gen/client"
+	api_enrrollment "github.com/ualter/teachstore-session/gen/client/enrollment"
 )
 
 // swagger:route GET /sessions sessions listSessions
@@ -45,11 +53,39 @@ func (s *Service) GetByID(rw http.ResponseWriter, r *http.Request) {
 		tracing.TraceRequest("GetById", rw, r)
 		session := s.FindById(id)
 		if session != nil {
-			err := utils.ToJSON(session, rw)
+			///
+			var clientEnrollment *api_client.EnrollmentAPI
+			transportConfig := api_client.DefaultTransportConfig().WithHost("192.168.1.49")
+			clientEnrollment = api_client.NewHTTPClientWithConfig(strfmt.Default, transportConfig)
+
+			params := api_enrrollment.NewListUsingGETParams()
+			// ----> AQUI!!   Change to FindByIDUsingGET
+			// search the Enrollment by the Session Enrollment ID
+			results, err := clientEnrollment.Enrollment.ListUsingGET(params)
 			if err != nil {
 				log.Error(err.Error())
 			}
+			payload := results.GetPayload()
+			ok := payload != nil
+			if !ok {
+				msg := "Expected to receive something on the Payload"
+				log.Errorf(msg)
+				panic(errors.New(msg))
+			}
+			for idx := range payload {
+				//enrollment := &models.EnrollmentView{}
+				enrollment := payload[idx]
+				fmt.Printf("Enrollment:\n Id:%d, Register Date:%s\n Course Title:%#v\n Student Name:%#v \n---------\n",
+					enrollment.ID, enrollment.RegisterDate, enrollment.Course.Title, enrollment.Student.Name)
+				session.Enrollments = append(session.Enrollments, enrollment)
+			}
+			///
 			rw.WriteHeader(http.StatusOK)
+			err = utils.ToJSON(session, rw)
+			if err != nil {
+				log.Error(err.Error())
+			}
+
 		} else {
 			rw.WriteHeader(http.StatusNotFound)
 			log.Infof("GetById id %d not found", id)

@@ -3,7 +3,7 @@ SHELL:=/bin/bash
 .PHONY: help build test upgrade run
 
 help:  ## Display this help
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[33m\n\nTargets:\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-18s\033[33m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[33m\n\nTargets:\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-25s\033[33m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 build: ## Build the project
 	go build -o teachstore-session
@@ -17,7 +17,6 @@ list-dep: ## List available minor and patch upgrades for all direct and indirect
 upgrade: ## Upgrade to the lastest or minor patch release	
 	go get -u ./...
 
-#AQUI!!!! LOAD IMAGE TO Kind!
 kind-load: show-env ## Load the Docker Image Application to Kind Cluster Named k8s3nodes
 	@echo -e "\033[0;33m---------> Loading to Kind Cluster Kubernetes\033[0;0m"
 	kind load docker-image teachstore-session:${VERSION} teachstore-session:${VERSION} --name k8s3nodes
@@ -78,3 +77,9 @@ helm-ls: ## List the helm charts installed with "teachstore" in name
 
 helm-del: ## Erase the teachstore-session chart (Consequently all its Kubernetes workloads creates)
 	helm delete teachstore-session
+
+swagger-check-install: ## Check the installation of swagger tool (in Go)
+	which swagger || go get -u github.com/go-swagger/go-swagger/cmd/swagger
+
+swagger-gen-client: swagger-check-install ## Generate the GO Client based on the Swaggers (OpenAPI) Spec of the Enrollments Service
+	cd swagger-dependencies/enrollment && swagger generate client -f swagger.yaml -A enrollment-api -t ../../gen
