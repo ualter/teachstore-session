@@ -58,10 +58,13 @@ func (s *Service) GetByID(rw http.ResponseWriter, r *http.Request) {
 			transportConfig := api_client.DefaultTransportConfig().WithHost("192.168.1.49")
 			clientEnrollment = api_client.NewHTTPClientWithConfig(strfmt.Default, transportConfig)
 
-			params := api_enrrollment.NewListUsingGETParams()
+			//params := api_enrrollment.NewListUsingGETParams()
+			params := api_enrrollment.NewFindByIDUsingGETParams()
+			params.SetID(session.Enrollment.ID)
 			// ----> AQUI!!   Change to FindByIDUsingGET
 			// search the Enrollment by the Session Enrollment ID
-			results, err := clientEnrollment.Enrollment.ListUsingGET(params)
+			//results, err := clientEnrollment.Enrollment.ListUsingGET(params)
+			results, err := clientEnrollment.Enrollment.FindByIDUsingGET()
 			if err != nil {
 				log.Error(err.Error())
 			}

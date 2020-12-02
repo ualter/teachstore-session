@@ -4,12 +4,13 @@ import (
 	"net/http"
 	"time"
 
+	api_models "github.com/ualter/teachstore-session/gen/models"
 	"github.com/ualter/teachstore-session/session/model"
 )
 
 var mockData = []model.Session{
-	model.Session{ID: 1, Name: "Angular", Date: time.Now()},
-	model.Session{ID: 2, Name: "Javascript", Date: time.Now()},
+	model.Session{ID: 1, Name: "Angular", Date: time.Now(), Enrollment: &api_models.EnrollmentView{ID: 1}},
+	model.Session{ID: 2, Name: "Javascript", Date: time.Now(), Enrollment: &api_models.EnrollmentView{ID: 2}},
 }
 
 type Service struct {

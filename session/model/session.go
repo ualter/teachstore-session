@@ -28,8 +28,8 @@ type Session struct {
 
 	// Enrollments
 
-	Enrollments []*api_models.EnrollmentView `json:"enrollments"`
-	//Addresses []Address `json:"addresses,omitempty"`
+	//Enrollments []*api_models.EnrollmentView `json:"enrollments"`
+	Enrollment *api_models.EnrollmentView `json:"enrollment"`
 
 	// The student attends to this session
 	//
