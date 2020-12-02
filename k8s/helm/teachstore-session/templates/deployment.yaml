@@ -23,6 +23,10 @@ spec:
       - name: {{ .Values.deployment.image.name }}  
         image: {{ .Values.image }}  
         imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
+        volumeMounts:
+        - name: config-volume
+          #mountPath: /etc/config
+          mountPath: /go/src/teachstore-session/config
         env:
       {{- range .Values.deployment.container.env }}          
         - name: {{.name }}
@@ -48,26 +52,26 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        #{{- with .Values.deployment.health }}
-        #readinessProbe:
-        #  httpGet:
-        #    path: {{ .path }}
-        #    port: {{ .port }}
-        #  initialDelaySeconds: {{ .readinessInitialDelaySeconds }}
-        #  periodSeconds: {{ .readinessPeriodSeconds }}
-        #livenessProbe:
-        #  httpGet:
-        #    path: {{ .path }}
-        #    port: {{ .port }}
-        #  initialDelaySeconds: {{ .livenessInitialDelaySeconds }}
-        #  periodSeconds: {{ .livenessPeriodSeconds }}
-        #startupProbe:
-        #  httpGet:
-        #    path: {{ .path }}
-        #    port: {{ .port }}
-        #  failureThreshold: {{ .startUpProbeFailureThreshold }}
-        #  periodSeconds: {{ .startUpProbePeriodSeconds }}
-        #{{- end }}
+        {{- with .Values.deployment.health }}
+        readinessProbe:
+          httpGet:
+            path: {{ .path }}
+            port: {{ .port }}
+          initialDelaySeconds: {{ .readinessInitialDelaySeconds }}
+          periodSeconds: {{ .readinessPeriodSeconds }}
+        livenessProbe:
+          httpGet:
+            path: {{ .path }}
+            port: {{ .port }}
+          initialDelaySeconds: {{ .livenessInitialDelaySeconds }}
+          periodSeconds: {{ .livenessPeriodSeconds }}
+        startupProbe:
+          httpGet:
+            path: {{ .path }}
+            port: {{ .port }}
+          failureThreshold: {{ .startUpProbeFailureThreshold }}
+          periodSeconds: {{ .startUpProbePeriodSeconds }}
+        {{- end }}
         #resources:
         #  requests:
         #    memory: "64Mi"
@@ -75,5 +79,9 @@ spec:
         #  limits:
         #    memory: "128Mi"
         #    cpu: "500m"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ .Release.Name }}-{{ .Values.version }}
 
 

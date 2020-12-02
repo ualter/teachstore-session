@@ -62,7 +62,7 @@ func main() {
 	r := mux.NewRouter()
 	// Service
 	addSessionServiceHandlers(r)
-	// Tracing
+	// Middleware (generic filter/chain for HTTP Requests)
 	r.Use(tracing.Middleware)
 
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
@@ -106,8 +106,10 @@ func addSessionServiceHandlers(r *mux.Router) {
 	sessionSvc := service.NewService()
 
 	getR := r.Methods(http.MethodGet).Subrouter()
-	getR.HandleFunc("/sessions", sessionSvc.ListAll)
-	getR.HandleFunc("/health", sessionSvc.Ping)
+	getR.HandleFunc("/health{_dummy:/|$}", sessionSvc.Ping)
+	getR.HandleFunc("/sessions{_dummy:/|$}", sessionSvc.GetAll)
+	getR.HandleFunc("/sessions/{id:[0-9]+}", sessionSvc.GetByID)
+
 }
 
 func loadExternalConfiguration() {
@@ -122,6 +124,7 @@ func loadExternalConfiguration() {
 		environment = "develop"
 	}
 
+	// TODO Use ConfigMap as Volumes
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./config/")

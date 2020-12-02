@@ -8,7 +8,7 @@ type Session struct {
 	// the id for the session
 	//
 	// required: true
-	ID int32 `json:"id"`
+	ID int64 `json:"id"`
 
 	// the name of the session (usually related with the Course)
 	//

@@ -70,6 +70,9 @@ helm-install: show-env ## Install the teachstore-session Helm chart (Deployment,
       --set-file 'configValues=config/config.yaml' \
       k8s/helm/teachstore-session
 
+helm-uninstall: ## Uninstall the Helm Chart of teachstore-session (all of it kubernetes workloads)
+	helm delete teachstore-session
+	
 helm-ls: ## List the helm charts installed with "teachstore" in name
 	helm ls --filter teachstore
 
