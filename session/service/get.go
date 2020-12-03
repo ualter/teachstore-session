@@ -13,7 +13,6 @@ import (
 	tracing "github.com/ualter/teachstore-session/tracing"
 	"github.com/ualter/teachstore-session/utils"
 
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	//api_models "github.com/ualter/teachstore-session/gen/models"
@@ -40,7 +39,7 @@ func (s *Service) GetAll(rw http.ResponseWriter, r *http.Request) {
 
 func (s *Service) getClient() *api_client.EnrollmentAPI {
 	serviceHost := config.GetServiceConfig(config.TEACHSTORE_ENROLLMENT).URL + ":" + config.GetServiceConfig(config.TEACHSTORE_ENROLLMENT).Port
-	logrus.Debugf("Connecting to service %s via URL %s", config.TEACHSTORE_ENROLLMENT, serviceHost)
+	log.Debugf("Connecting to service %s via URL %s", config.TEACHSTORE_ENROLLMENT, serviceHost)
 	transportConfig := api_client.DefaultTransportConfig().WithHost(serviceHost)
 	return api_client.NewHTTPClientWithConfig(strfmt.Default, transportConfig)
 }
@@ -63,31 +62,28 @@ func (s *Service) GetByID(rw http.ResponseWriter, r *http.Request) {
 		session := s.FindById(id)
 		if session != nil {
 			clientEnrollment := s.getClient()
-
 			params := api_enrrollment.NewFindByIDUsingGETParamsWithTimeout(10 * time.Second)
 			params.SetID(session.Enrollment.ID)
 			results, err := clientEnrollment.Enrollment.FindByIDUsingGET(params)
 			if err != nil {
-				log.Error(err.Error())
+				log.Errorf("%s", err.Error())
+			} else {
+				enrollment := results.GetPayload()
+				ok := enrollment != nil
+				if !ok {
+					msg := "Expected to receive something on the enrollment"
+					log.Errorf(msg)
+					panic(errors.New(msg))
+				}
+				log.Debugf("ENROLLMENT: Id:%d, Register Date:%s, Course Title:%#v, Student Name:%#v",
+					enrollment.ID, enrollment.RegisterDate, enrollment.Course.Title, enrollment.Student.Name)
+				session.Enrollment = enrollment
 			}
-			enrollment := results.GetPayload()
-			ok := enrollment != nil
-			if !ok {
-				msg := "Expected to receive something on the enrollment"
-				log.Errorf(msg)
-				panic(errors.New(msg))
-			}
-
-			log.Debugf("ENROLLMENT: Id:%d, Register Date:%s, Course Title:%#v, Student Name:%#v",
-				enrollment.ID, enrollment.RegisterDate, enrollment.Course.Title, enrollment.Student.Name)
-
-			session.Enrollment = enrollment
 			rw.WriteHeader(http.StatusOK)
 			err = utils.ToJSON(session, rw)
 			if err != nil {
 				log.Error(err.Error())
 			}
-
 		} else {
 			rw.WriteHeader(http.StatusNotFound)
 			log.Infof("GetById id %d not found", id)

@@ -15,7 +15,7 @@ services:
 
 ---
 
-# DEVELOP Enviroment modified values
+# DEVELOP Enviroment values (running on Kubernetes using Services URL, KubeDNS)
 develop:
   services:
   - teachstore-enrollment:
