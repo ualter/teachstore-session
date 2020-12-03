@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gorilla/mux"
 
+	"github.com/ualter/teachstore-session/config"
 	tracing "github.com/ualter/teachstore-session/tracing"
 	"github.com/ualter/teachstore-session/utils"
 
@@ -60,7 +61,10 @@ func (s *Service) GetByID(rw http.ResponseWriter, r *http.Request) {
 			// localhost:80 (local)
 			//fmt.Println(ServicesConfig[TEACHSTORE_ENROLLMENT])
 
-			transportConfig := api_client.DefaultTransportConfig().WithHost("localhost:80")
+			// AQUI!! TODO: get from config.Get..(...)
+
+			serviceHost := config.GetServiceConfig(config.TEACHSTORE_ENROLLMENT).URL + ":" + config.GetServiceConfig(config.TEACHSTORE_ENROLLMENT).Port
+			transportConfig := api_client.DefaultTransportConfig().WithHost(serviceHost)
 			clientEnrollment = api_client.NewHTTPClientWithConfig(strfmt.Default, transportConfig)
 
 			//params := api_enrrollment.NewListUsingGETParams()

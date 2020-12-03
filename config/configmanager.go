@@ -17,24 +17,6 @@ type ServiceConfig struct {
 	Port string `json:"port"`
 }
 
-type Config struct {
-	Name        string `json:"name"`
-	Port        string `json:"port"`
-	Opentracing struct {
-		Enable string `json:"string"`
-		Jaeger struct {
-			HTTPSender struct {
-				URL string `json:"http-sender"`
-			}
-		}
-		Zipking struct {
-			HTTP struct {
-				URL string `json:"http"`
-			}
-		}
-	}
-}
-
 var (
 	environment    string
 	ServicesConfig = make(map[string]*ServiceConfig)
@@ -65,6 +47,11 @@ func GetInterface(path string) interface{} {
 		return viper.Get(path)
 	}
 	panic(fmt.Sprintf("Path %s was not found!!", path))
+}
+
+// GetServiceConfig return the configuration of a service
+func GetServiceConfig(serviceName string) *ServiceConfig {
+	return ServicesConfig[serviceName]
 }
 
 // LoadExternalConfiguration is ...
