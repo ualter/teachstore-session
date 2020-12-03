@@ -2,9 +2,9 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gorilla/mux"
@@ -55,34 +55,33 @@ func (s *Service) GetByID(rw http.ResponseWriter, r *http.Request) {
 		if session != nil {
 			///
 			var clientEnrollment *api_client.EnrollmentAPI
-			transportConfig := api_client.DefaultTransportConfig().WithHost("192.168.1.49")
+			// http://teachstore-enrollment/teachstore-enrollment/api/enrollments
+			// teachstore-enrollment:80 (K8s)
+			// localhost:80 (local)
+			//fmt.Println(ServicesConfig[TEACHSTORE_ENROLLMENT])
+
+			transportConfig := api_client.DefaultTransportConfig().WithHost("localhost:80")
 			clientEnrollment = api_client.NewHTTPClientWithConfig(strfmt.Default, transportConfig)
 
 			//params := api_enrrollment.NewListUsingGETParams()
-			params := api_enrrollment.NewFindByIDUsingGETParams()
+			params := api_enrrollment.NewFindByIDUsingGETParamsWithTimeout(10 * time.Second)
 			params.SetID(session.Enrollment.ID)
-			// ----> AQUI!!   Change to FindByIDUsingGET
-			// search the Enrollment by the Session Enrollment ID
-			//results, err := clientEnrollment.Enrollment.ListUsingGET(params)
-			results, err := clientEnrollment.Enrollment.FindByIDUsingGET()
+			results, err := clientEnrollment.Enrollment.FindByIDUsingGET(params)
 			if err != nil {
 				log.Error(err.Error())
 			}
-			payload := results.GetPayload()
-			ok := payload != nil
+			enrollment := results.GetPayload()
+			ok := enrollment != nil
 			if !ok {
-				msg := "Expected to receive something on the Payload"
+				msg := "Expected to receive something on the enrollment"
 				log.Errorf(msg)
 				panic(errors.New(msg))
 			}
-			for idx := range payload {
-				//enrollment := &models.EnrollmentView{}
-				enrollment := payload[idx]
-				fmt.Printf("Enrollment:\n Id:%d, Register Date:%s\n Course Title:%#v\n Student Name:%#v \n---------\n",
-					enrollment.ID, enrollment.RegisterDate, enrollment.Course.Title, enrollment.Student.Name)
-				session.Enrollments = append(session.Enrollments, enrollment)
-			}
-			///
+
+			log.Debugf("ENROLLMENT: Id:%d, Register Date:%s, Course Title:%#v, Student Name:%#v",
+				enrollment.ID, enrollment.RegisterDate, enrollment.Course.Title, enrollment.Student.Name)
+
+			session.Enrollment = enrollment
 			rw.WriteHeader(http.StatusOK)
 			err = utils.ToJSON(session, rw)
 			if err != nil {

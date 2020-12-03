@@ -7,7 +7,9 @@ import (
 	zipkinot "github.com/openzipkin-contrib/zipkin-go-opentracing"
 	zipkingo "github.com/openzipkin/zipkin-go"
 	zipkinhttp "github.com/openzipkin/zipkin-go/reporter/http"
-	viper "github.com/spf13/viper"
+	"github.com/spf13/viper"
+	config "github.com/ualter/teachstore-session/config"
+	"github.com/ualter/teachstore-session/utils"
 	"github.com/uber/jaeger-client-go"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
 	jaegerlog "github.com/uber/jaeger-client-go/log"
@@ -16,10 +18,11 @@ import (
 )
 
 func StartOpenTracingWithZipkin() {
-	reporter := zipkinhttp.NewReporter(zipkinEndpoint)
+	reporter := zipkinhttp.NewReporter(config.GetString("opentracing.zipkin.http.url"))
 	//defer reporter.Close()
 
-	endpoint, err := zipkingo.NewEndpoint(viper.GetString("name"), myIP+":"+bindAddress)
+	myIP, _ := utils.MyIP()
+	endpoint, err := zipkingo.NewEndpoint(config.GetString("name"), myIP+":"+config.GetString("port"))
 	if err != nil {
 		log.Fatalf("unable to create local endpoint: %+v\n", err)
 	}
@@ -45,7 +48,7 @@ func StartOpenTracingWithJaeger() {
 		},
 		Reporter: &jaegercfg.ReporterConfig{
 			LogSpans:          true,
-			CollectorEndpoint: jaegerEndpoint,
+			CollectorEndpoint: config.GetString("opentracing.jaeger.http-sender.url"),
 		},
 	}
 

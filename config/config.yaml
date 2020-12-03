@@ -1,5 +1,5 @@
 name: teachstore-session
-port: 9480
+port: "9480"
 opentracing:  #Only one at time enabled: Jaeger or Zipkin
   enable: "jaeger"  #Valid: zipkin, jaeger
   jaeger: 
@@ -8,4 +8,16 @@ opentracing:  #Only one at time enabled: Jaeger or Zipkin
   zipkin:
     http:
       url: http://${IP_DOCKER_HOST}:9411/api/v2/spans
+services:
+- teachstore-enrollment:
+    url: "localhost"
+    port: "9480"
 
+---
+
+# DEVELOP Enviroment modified values
+develop:
+  services:
+  - teachstore-enrollment:
+      url: "teachstore-enrollment"
+      port: "80"

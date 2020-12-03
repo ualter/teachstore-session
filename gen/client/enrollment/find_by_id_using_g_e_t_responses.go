@@ -75,20 +75,20 @@ func NewFindByIDUsingGETOK() *FindByIDUsingGETOK {
 Request succeeded
 */
 type FindByIDUsingGETOK struct {
-	Payload *models.Enrollment
+	Payload *models.EnrollmentView
 }
 
 func (o *FindByIDUsingGETOK) Error() string {
 	return fmt.Sprintf("[GET /api/enrollments/{id}][%d] findByIdUsingGETOK  %+v", 200, o.Payload)
 }
 
-func (o *FindByIDUsingGETOK) GetPayload() *models.Enrollment {
+func (o *FindByIDUsingGETOK) GetPayload() *models.EnrollmentView {
 	return o.Payload
 }
 
 func (o *FindByIDUsingGETOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.Enrollment)
+	o.Payload = new(models.EnrollmentView)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

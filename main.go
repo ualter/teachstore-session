@@ -16,20 +16,14 @@ import (
 	"github.com/gorilla/mux"
 
 	logrus "github.com/sirupsen/logrus"
-	viper "github.com/spf13/viper"
+	config "github.com/ualter/teachstore-session/config"
 	"github.com/ualter/teachstore-session/session/service"
 	"github.com/ualter/teachstore-session/tracing"
-	"github.com/ualter/teachstore-session/utils"
 )
 
 var (
-	outputLog      = os.Stdout
-	bindAddress    string
-	closerJaeger   io.Closer
-	jaegerEndpoint = "localhost"
-	zipkinEndpoint = "localhost"
-	tracingEnable  = ""
-	myIP           = "localhost"
+	outputLog    = os.Stdout
+	closerJaeger io.Closer
 )
 
 func init() {
@@ -50,9 +44,10 @@ func main() {
 	//os.Setenv("IP_DOCKER_HOST", "192.168.1.42")
 
 	// External Configuration
-	loadExternalConfiguration()
+	config.LoadExternalConfiguration()
 
 	// Distributed Tracing
+	tracingEnable := config.GetString("opentracing.enable")
 	if tracingEnable == "jaeger" {
 		StartOpenTracingWithJaeger()
 	} else if tracingEnable == "zipkin" {
@@ -67,8 +62,9 @@ func main() {
 
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
 
+	port := config.GetString("port")
 	s := http.Server{
-		Addr:         (":" + bindAddress),
+		Addr:         (":" + port),
 		Handler:      ch(r),                     // set the default handler
 		ErrorLog:     log.New(outputLog, "", 0), // set the logger for the server
 		ReadTimeout:  10 * time.Second,          // max time to read request from the client
@@ -77,7 +73,7 @@ func main() {
 	}
 
 	go func() {
-		fmt.Printf("Server started at %s \n", bindAddress)
+		fmt.Printf("Server started at %s \n", port)
 		err := s.ListenAndServe()
 		if err != nil {
 			if err.Error() != "http: Server closed" {
@@ -110,37 +106,4 @@ func addSessionServiceHandlers(r *mux.Router) {
 	getR.HandleFunc("/sessions{_dummy:/|$}", sessionSvc.GetAll)
 	getR.HandleFunc("/sessions/{id:[0-9]+}", sessionSvc.GetByID)
 
-}
-
-func loadExternalConfiguration() {
-	var err error
-	myIP, err = utils.MyIP()
-	if err != nil {
-		panic(err.Error())
-	}
-
-	environment := os.Getenv("ENVIRONMENT")
-	if environment == "" {
-		environment = "develop"
-	}
-
-	// TODO Use ConfigMap as Volumes
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("./config/")
-	err = viper.ReadInConfig()
-	if err != nil {
-		logrus.Errorf("Error %s", err.Error())
-		panic(err.Error())
-	}
-
-	viper.SetDefault("port", "9999")
-	bindAddress = viper.GetString("port")
-	jaegerEndpoint = utils.ReplaceEnvInConfig(viper.Get("opentracing.jaeger.http-sender.url").(string))
-	zipkinEndpoint = utils.ReplaceEnvInConfig(viper.Get("opentracing.zipkin.http.url").(string))
-	tracingEnable = viper.Get("opentracing.enable").(string)
-
-	logrus.Debugf("Jaeger Endpoint: %s", jaegerEndpoint)
-	logrus.Debugf("Zipkin Endpoint: %s", zipkinEndpoint)
-	logrus.Debugf("Tracing enable for: %s", tracingEnable)
 }

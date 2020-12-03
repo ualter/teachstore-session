@@ -9,8 +9,8 @@ import (
 )
 
 var mockData = []model.Session{
-	model.Session{ID: 1, Name: "Angular", Date: time.Now(), Enrollment: &api_models.EnrollmentView{ID: 1}},
-	model.Session{ID: 2, Name: "Javascript", Date: time.Now(), Enrollment: &api_models.EnrollmentView{ID: 2}},
+	model.Session{ID: 1, Name: "Session 101", Date: time.Now(), Enrollment: &api_models.EnrollmentView{ID: 1}},
+	model.Session{ID: 2, Name: "Session 101", Date: time.Now(), Enrollment: &api_models.EnrollmentView{ID: 2}},
 }
 
 type Service struct {
