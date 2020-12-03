@@ -34,7 +34,7 @@ func init() {
 		return nil
 	}))
 
-	//logrus.SetReportCaller(true) #Add the Caller (file.go:line)
+	//logrus.SetReportCaller(true) // Add the Caller (file.go:line)
 	logrus.SetOutput(outputLog)
 	logrus.SetLevel(logrus.DebugLevel)
 }

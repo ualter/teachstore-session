@@ -10,8 +10,8 @@ opentracing:  #Only one at time enabled: Jaeger or Zipkin
       url: http://${IP_DOCKER_HOST}:9411/api/v2/spans
 services:
 - teachstore-enrollment:
-    url: "localhost"
-    port: "9480"
+    url: "${IP_DOCKER_HOST}"
+    port: "80"
 
 ---
 

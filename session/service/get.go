@@ -13,6 +13,7 @@ import (
 	tracing "github.com/ualter/teachstore-session/tracing"
 	"github.com/ualter/teachstore-session/utils"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	//api_models "github.com/ualter/teachstore-session/gen/models"
@@ -37,6 +38,13 @@ func (s *Service) GetAll(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
+func (s *Service) getClient() *api_client.EnrollmentAPI {
+	serviceHost := config.GetServiceConfig(config.TEACHSTORE_ENROLLMENT).URL + ":" + config.GetServiceConfig(config.TEACHSTORE_ENROLLMENT).Port
+	logrus.Debugf("Connecting to service %s via URL %s", config.TEACHSTORE_ENROLLMENT, serviceHost)
+	transportConfig := api_client.DefaultTransportConfig().WithHost(serviceHost)
+	return api_client.NewHTTPClientWithConfig(strfmt.Default, transportConfig)
+}
+
 // swagger:route GET /sessions/{id} sessions Session
 // Return a session found by its Id
 // responses:
@@ -54,20 +62,8 @@ func (s *Service) GetByID(rw http.ResponseWriter, r *http.Request) {
 		tracing.TraceRequest("GetById", rw, r)
 		session := s.FindById(id)
 		if session != nil {
-			///
-			var clientEnrollment *api_client.EnrollmentAPI
-			// http://teachstore-enrollment/teachstore-enrollment/api/enrollments
-			// teachstore-enrollment:80 (K8s)
-			// localhost:80 (local)
-			//fmt.Println(ServicesConfig[TEACHSTORE_ENROLLMENT])
+			clientEnrollment := s.getClient()
 
-			// AQUI!! TODO: get from config.Get..(...)
-
-			serviceHost := config.GetServiceConfig(config.TEACHSTORE_ENROLLMENT).URL + ":" + config.GetServiceConfig(config.TEACHSTORE_ENROLLMENT).Port
-			transportConfig := api_client.DefaultTransportConfig().WithHost(serviceHost)
-			clientEnrollment = api_client.NewHTTPClientWithConfig(strfmt.Default, transportConfig)
-
-			//params := api_enrrollment.NewListUsingGETParams()
 			params := api_enrrollment.NewFindByIDUsingGETParamsWithTimeout(10 * time.Second)
 			params.SetID(session.Enrollment.ID)
 			results, err := clientEnrollment.Enrollment.FindByIDUsingGET(params)

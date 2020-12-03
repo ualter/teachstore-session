@@ -76,7 +76,7 @@ func serializeFromTheWire(function string, rw http.ResponseWriter, r *http.Reque
 		opentracing.HTTPHeaders,
 		opentracing.HTTPHeadersCarrier(rw.Header()))
 	if err != nil {
-		traceLogger.Debugf(err.Error())
+		//traceLogger.Debugf(err.Error())
 		return false, nil
 	}
 	serverSpan = opentracing.StartSpan(function, opentracingext.RPCServerOption(wireContext))

@@ -32,6 +32,7 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 // indirect
 	golang.org/x/text v0.3.4 // indirect
+	google.golang.org/appengine v1.6.1
 	google.golang.org/grpc v1.33.2 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 )

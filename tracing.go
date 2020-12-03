@@ -7,7 +7,7 @@ import (
 	zipkinot "github.com/openzipkin-contrib/zipkin-go-opentracing"
 	zipkingo "github.com/openzipkin/zipkin-go"
 	zipkinhttp "github.com/openzipkin/zipkin-go/reporter/http"
-	"github.com/spf13/viper"
+	logrus "github.com/sirupsen/logrus"
 	config "github.com/ualter/teachstore-session/config"
 	"github.com/ualter/teachstore-session/utils"
 	"github.com/uber/jaeger-client-go"
@@ -22,7 +22,9 @@ func StartOpenTracingWithZipkin() {
 	//defer reporter.Close()
 
 	myIP, _ := utils.MyIP()
-	endpoint, err := zipkingo.NewEndpoint(config.GetString("name"), myIP+":"+config.GetString("port"))
+	url := myIP + ":" + config.GetString("port")
+	logrus.Debugf("Connecting to Zipkin URL %s", url)
+	endpoint, err := zipkingo.NewEndpoint(config.GetString("name"), url)
 	if err != nil {
 		log.Fatalf("unable to create local endpoint: %+v\n", err)
 	}
@@ -41,6 +43,8 @@ func StartOpenTracingWithZipkin() {
 }
 
 func StartOpenTracingWithJaeger() {
+	jaegerEndpoint := config.GetString("opentracing.jaeger.http-sender.url")
+	logrus.Debugf("Connecting to Jaeger Collector via URL %s", jaegerEndpoint)
 	cfg := jaegercfg.Configuration{
 		Sampler: &jaegercfg.SamplerConfig{
 			Type:  jaeger.SamplerTypeConst,
@@ -48,7 +52,7 @@ func StartOpenTracingWithJaeger() {
 		},
 		Reporter: &jaegercfg.ReporterConfig{
 			LogSpans:          true,
-			CollectorEndpoint: config.GetString("opentracing.jaeger.http-sender.url"),
+			CollectorEndpoint: jaegerEndpoint,
 		},
 	}
 
@@ -61,7 +65,7 @@ func StartOpenTracingWithJaeger() {
 	if zipkinHTTPB3CompitablePropagation {
 		zipkinPropagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
 		closerJaeger, err := cfg.InitGlobalTracer(
-			viper.GetString("name"),
+			config.GetString("name"),
 			//jaegercfg.Logger(jLogger),
 			jaegercfg.Metrics(jMetricsFactory),
 			jaegercfg.Injector(opentracing.HTTPHeaders, zipkinPropagator),
@@ -75,7 +79,7 @@ func StartOpenTracingWithJaeger() {
 		_ = closerJaeger
 	} else {
 		closerJaeger, err := cfg.InitGlobalTracer(
-			viper.GetString("name"),
+			config.GetString("name"),
 			//jaegercfg.Logger(jLogger),
 			jaegercfg.Metrics(jMetricsFactory),
 		)

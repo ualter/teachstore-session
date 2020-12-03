@@ -27,7 +27,7 @@ const TEACHSTORE_ENROLLMENT string = "teachstore-enrollment"
 // GetString get string values from config
 func GetString(path string) string {
 	v := GetInterface(path)
-	return v.(string)
+	return replaceEnvInConfig(v.(string))
 }
 
 // GetInt get int values from config
@@ -96,17 +96,12 @@ func loadServicesConfig(services interface{}) {
 			ServicesConfig[serviceKey] = &ServiceConfig{}
 			for k2, v2 := range v1.(map[interface{}]interface{}) {
 				if k2.(string) == "url" {
-					ServicesConfig[serviceKey].URL = v2.(string)
+					ServicesConfig[serviceKey].URL = replaceEnvInConfig(v2.(string))
 				} else if k2.(string) == "port" {
 					ServicesConfig[serviceKey].Port = v2.(string)
 				}
 			}
 		}
-	}
-
-	for k, _ := range ServicesConfig {
-		fmt.Printf("%s=%s\n", k, ServicesConfig[k].URL)
-		fmt.Printf("%s=%s\n", k, ServicesConfig[k].Port)
 	}
 }
 
