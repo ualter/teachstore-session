@@ -12,9 +12,6 @@ services:
 - teachstore-enrollment:
     url: "${IP_DOCKER_HOST}"
     port: "80"
-
----
-
 # DEVELOP Enviroment values (running on Kubernetes using Services URL, KubeDNS)
 develop:
   services:

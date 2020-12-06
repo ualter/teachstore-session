@@ -1,0 +1,22 @@
+apiVersion: skaffold/v2beta7
+kind: Config
+build:
+  tagPolicy:
+    envTemplate:
+      template: "{{.VERSION}}"
+  artifacts:
+  - image: teachstore-session
+
+deploy:
+  helm:
+    releases:
+    - name: teachstore-session
+      chartPath: k8s/helm/teachstore-session
+      artifactOverrides:
+        image: teachstore-session
+      setValueTemplates:
+        version: "{{.VERSION}}"
+        deployment.version: "{{.VERSION}}"
+        ipDockerHost: "{{.IP_DOCKER_HOST}}"
+      setFiles:
+        configValues: "config/config.yaml"

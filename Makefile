@@ -23,14 +23,14 @@ kind-load: show-env ## Load the Docker Image Application to Kind Cluster Named k
 
 docker-rm: ## Remove the teachstore-session image created
 	@echo -e "\033[0;33m---------> Removing teachstore-session\033[0;0m"
-	docker rmi $$(docker images teachstore-session -qa)
+	docker rmi $$(docker images teachstore-session -qa) || true
 
 docker-build: show-env docker-rm ## Build the docker image of this microservice with name: teachstore-session:${VERSION}
 	@echo -e "\033[0;33m---------> Building teachstore-session\033[0;0m"
 	docker build . -t teachstore-session:${VERSION}
 
 docker-run: show-env ## Run a Container with this microservice
-	docker run -d -p 8383:9393 \
+	docker run -d -p 8383:9480 \
 	       -e IP_DOCKER_HOST=${IP_DOCKER_HOST} \
 	       --name teachstore-session teachstore-session:${VERSION}
 
@@ -83,3 +83,9 @@ swagger-check-install: ## Check the installation of swagger tool (in Go)
 
 swagger-gen-client: swagger-check-install ## Generate the GO Client based on the Swaggers (OpenAPI) Spec of the Enrollments Service
 	cd swagger-dependencies/enrollment && swagger generate client -f swagger.yaml -A enrollment-api -t ../../gen
+
+skaffold: ## Deploy at K8s the microservice teachstore-session using Skaffold
+	skaffold run --skip-tests=true
+
+skaffold-undeploy: ## Undeploy microservice teachstore-session from K8s
+	skaffold delete	
