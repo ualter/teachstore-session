@@ -84,8 +84,12 @@ swagger-check-install: ## Check the installation of swagger tool (in Go)
 swagger-gen-client: swagger-check-install ## Generate the GO Client based on the Swaggers (OpenAPI) Spec of the Enrollments Service
 	cd swagger-dependencies/enrollment && swagger generate client -f swagger.yaml -A enrollment-api -t ../../gen
 
-skaffold: ## Deploy at K8s the microservice teachstore-session using Skaffold
+skaffold: show-env ## Deploy at K8s the microservice teachstore-session using Skaffold
 	skaffold run --skip-tests=true
 
-skaffold-undeploy: ## Undeploy microservice teachstore-session from K8s
-	skaffold delete	
+skaffold-undeploy: Just delete all the resources deployed with Skaffold ## Undeploy microservice teachstore-session from K8s
+	skaffold delete
+
+skaffold-develop: show-env ## Deploy a simple Pod for development purposes
+	sh createDeps.sh
+	skaffold dev -f skaffold-dev.yaml --port-forward --skip-tests=true --tail

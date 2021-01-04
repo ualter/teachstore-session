@@ -1,0 +1,27 @@
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: teachstore-session-1.0.0
+  namespace: develop
+data:
+  config.yaml: |-
+    name: teachstore-session
+    port: "9480"
+    opentracing:   Only one at time enabled: Jaeger or Zipkin
+      enable: "jaeger"   Valid: zipkin, jaeger
+      jaeger: 
+        http-sender:
+          url: http://${IP_DOCKER_HOST}:14268/api/traces
+      zipkin:
+        http:
+          url: http://${IP_DOCKER_HOST}:9411/api/v2/spans
+    services:
+    - teachstore-enrollment:
+        url: "${IP_DOCKER_HOST}"
+        port: "80"
+      DEVELOP Enviroment values (running on Kubernetes using Services URL, KubeDNS)
+    develop:
+      services:
+      - teachstore-enrollment:
+          url: "teachstore-enrollment"
